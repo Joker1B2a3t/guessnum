@@ -1,37 +1,67 @@
 package lv.tsi.java;
 
-import java.util.InputMismatchException;
-import java.util.Random;
-import java.util.Scanner;
+import lv.tsi.java.GameResult;
+
+import java.sql.SQLOutput;
+import java.util.*;
+
+
 public class Main {
     static Random rand = new Random();
     static Scanner scan = new Scanner(System.in);
+    static List<GameResult> results = new ArrayList<>();
 
     public static void main(String[] args) {
-        int myNum = rand.nextInt(100) + 1;
-        System.out.println(myNum);
         String answer;
         do {
+            System.out.println("What is your name?");
+            String name = scan.next();
+            int myNum = rand.nextInt(100) + 1;
+            System.out.println(myNum);
+
+            long t1= System.currentTimeMillis();
+
             boolean userLost = true;
             for (int i = 1; i <= 10; i++) {
                 System.out.println("Try #" + i);
-                int userNum = scan.nextInt();
-                if (userNum == myNum) {
-                    System.out.println("true");
-                    userLost = false;
-                    break;
+                int userNum = askNum();
+
+                if (myNum < userNum) {
+                    System.out.println("my number is less then yours");
+                } else if (myNum > userNum) {
+                    System.out.println("my number is greater then yours");
                 } else {
-                    System.out.println("wrong");
+                    System.out.println("Yeeeh! You won!");
+
+                    long t2 = System.currentTimeMillis();
+                    long t = (t2-t1)/1000;
+                    System.out.println("time: " + t);
+
+                    userLost = false;
+                    GameResult r = new GameResult();
+                    r.name = name;
+                    r.triesCount = i;
+                    results.add(r);
+                    break;
                 }
             }
-            if (userLost == true) {
+            if (userLost) {
                 System.out.println("You lost, my friend!");
             }
-
             System.out.println("Do you want to play again? (y/n)");
             answer = askYN();
         } while (answer.equals("y"));
+
+        showResults();
+
         System.out.println("Good bye!");
+
+    }
+
+    private static void showResults() {
+        for (GameResult r : results) {
+            System.out.println(r.name + "  :  " + r.triesCount);
+        }
     }
 
 
@@ -40,8 +70,7 @@ public class Main {
         do {
             answer = scan.next();
             if (!answer.equals("y") && !answer.equals("n")) {
-                System.out.println("You can enter 'y' or 'n' only!");
-                continue;
+                System.out.println("You can enter only 'y' or 'n'!");
             } else {
                 return answer;
             }
@@ -49,22 +78,22 @@ public class Main {
     }
 
     static int askNum() {
-        String answer;
+        int answer;
         do {
             try {
                 answer = scan.nextInt();
             } catch (InputMismatchException e) {
-                System.out.println( "This isn't a number!");
-            scan.next();
+                System.out.println("This isn't a number!");
+                scan.next();
                 continue;
-
-        }
-            answer = scan.nextInt();
-            if (answer <= 100 && answer >= 0) {
-                System.out.println("You can enter a number between 1 or 100");
-                continue;
+            }
+            if (answer < 1 || answer > 100) {
+                System.out.println("Please enter a number between 1 and 100");
             } else {
                 return answer;
-
-            } while (true);
+            }
+        } while (true);
     }
+
+
+}
